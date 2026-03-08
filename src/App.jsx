@@ -312,11 +312,26 @@ export default function App() {
       )} hrs of your life\n${verdict.emoji} ${verdict.label}\n\nCalculated with "Is It Worth It?" 🧮`
     : "";
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(shareText).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
-    });
+  const handleShare = async () => {
+    const sharePayload = {
+      title: "Is It Worth It? 🧠💸",
+      text: shareText,
+      url: "https://priceintime.com",
+    };
+    // Use native share sheet if available (mobile + modern desktop)
+    if (navigator.share) {
+      try {
+        await navigator.share(sharePayload);
+      } catch (err) {
+        // user dismissed — do nothing
+      }
+    } else {
+      // Fallback: copy to clipboard
+      navigator.clipboard.writeText(`${shareText}\n\nhttps://priceintime.com`).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2200);
+      });
+    }
   };
 
   const handleKeyDown = (e) => {
@@ -765,7 +780,7 @@ export default function App() {
 
           {/* Share */}
           <button
-            onClick={handleCopy}
+            onClick={handleShare}
             style={{
               background: copied ? `${C.teal}18` : "transparent",
               color: copied ? C.teal : C.text,
@@ -800,7 +815,7 @@ export default function App() {
               }
             }}
           >
-            {copied ? "✅ copied! send it bestie" : "📋 share the tea"}
+            {copied ? "✅ link copied!" : "🫂 share the tea"}
           </button>
 
           {/* Bottom stripe */}
